@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Contact Manager</title>
+</head>
+<body class="container">
+
+<div th:if="${message != null}" class="alert alert-success alert-dismissible fade show">
+    [[${message}]]
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+
+<h3>Contact List</h3>
+
+<!-- Filter form -->
+<form th:action="@{/filter}" method="get" class="d-flex mb-3">
+    <input type="text" name="name" placeholder="Filter by name" class="form-control me-2" th:value="${name}">
+    <input type="text" name="email" placeholder="Filter by email" class="form-control me-2" th:value="${email}">
+    <input type="date" name="dateOfBirth" class="form-control me-2" th:value="${#temporals.format(dateOfBirth, 'yyyy-MM-dd')}">
+    <button type="submit" class="btn btn-outline-primary">Filter</button>
+</form>
+
+<!-- Search form -->
+<form th:action="@{/search}" method="get" class="d-flex mb-3">
+    <input type="text" name="query" placeholder="Search..." class="form-control me-2" th:value="${query}">
+    <button type="submit" class="btn btn-outline-primary">Search</button>
+</form>
+
+<div class="container">
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <!-- <th>Id</th> -->
+            <th>
+                <a th:href="@{/filter(sortField='name', sortDir=${sortDir == 'asc' ? 'desc' : 'asc'})}">Name</a>
+            </th>
+            <th>
+                <a th:href="@{/filter(sortField='email', sortDir=${sortDir == 'asc' ? 'desc' : 'asc'})}">Email</a>
+            </th>
+            <th>Phone</th>
+            <th>
+                <a th:href="@{/filter(sortField='dateOfBirth', sortDir=${sortDir == 'asc' ? 'desc' : 'asc'})}">Date of Birth</a>
+            </th>
+            <th>Time of Registration</th>
+            <th>Favorite</th> <!-- New Favorite Column -->
+            <th></th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <tr th:each="contact : ${contacts}">
+            <!-- <td th:text="${contact.id}"></td> -->
+            <td th:text="${contact.name}"></td>
+            <td th:text="${contact.email}"></td>
+            <td th:text="${contact.phone}"></td>
+            <td th:text="${#temporals.format(contact.dateOfBirth, 'dd/MM/yyyy')}"></td>
+            <td th:text="${#temporals.format(contact.timeOfRegistration, 'dd/MM/yyyy hh:mm a')}"></td>
+            <td th:text="${contact.favorite ? 'Yes' : 'No'}"></td> <!-- Favorite Column Data -->
+            <td class="text-end">
+                <a th:href="@{/{id}/edit(id=${contact.id})}" class="btn btn-sm btn-primary">
+                    Edit
+                </a>
+                <a href="#" onclick="deleteContact(this)" class="btn btn-danger btn-sm">
+                    Delete
+                </a>
+                <form th:action="@{/{id}/delete(id=${contact.id})}" method="post" style="display: none;"></form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <!-- Message if no contacts found -->
+    <div th:if="${#lists.isEmpty(contacts)}">
+        <p>No contacts found for the search query: "<span th:text="${query}"></span>"</p>
+    </div>
+</div>
+
+<div class="text-center my-3">
+    <a href="/newContact" class="btn btn-primary">
+        Create New Contact
+    </a>
+</div>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+      crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+
+<script>
+    function deleteContact(elem) {
+        var ok = confirm('Are you sure you want to delete this contact?');
+        if (ok) {
+            elem.nextElementSibling.submit();
+        }
+    }
+</script>
+
+</body>
+</html>
